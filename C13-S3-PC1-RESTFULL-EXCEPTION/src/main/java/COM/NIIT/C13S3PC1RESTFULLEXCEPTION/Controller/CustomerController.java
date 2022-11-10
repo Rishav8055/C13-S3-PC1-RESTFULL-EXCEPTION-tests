@@ -1,6 +1,7 @@
 package COM.NIIT.C13S3PC1RESTFULLEXCEPTION.Controller;
 
 import COM.NIIT.C13S3PC1RESTFULLEXCEPTION.Domain.Customer;
+import COM.NIIT.C13S3PC1RESTFULLEXCEPTION.Exception.CustomerAlreadyExists;
 import COM.NIIT.C13S3PC1RESTFULLEXCEPTION.Exception.CustomerNotFoundException;
 import COM.NIIT.C13S3PC1RESTFULLEXCEPTION.Service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,20 @@ public class CustomerController {
         this.customerService = customerService;
     }
     @PostMapping("/post")
-    public ResponseEntity<?> addCustomer(@RequestBody Customer customer){
-    Customer customer1= customerService.saveCustomer(customer);
-    return new ResponseEntity<>(customer1, HttpStatus.CREATED);
+    public ResponseEntity<?> addCustomer(@RequestBody Customer customer) throws CustomerAlreadyExists {
+    ResponseEntity responseEntity=null;
+    try {
+        customerService.saveCustomer(customer);
+        responseEntity = new ResponseEntity(customer, HttpStatus.CREATED);
+    } catch (CustomerAlreadyExists e) {
+        throw new CustomerAlreadyExists();
+    }catch (Exception e){
+        responseEntity=new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+
+    }
+
+
+        return responseEntity;
     }
     @GetMapping("/get")
     public ResponseEntity<?> getAllData(){
@@ -32,7 +44,7 @@ public class CustomerController {
     return responseEntity;
     }
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable("id") int id) throws CustomerNotFoundException{
+    public ResponseEntity<?> deleteById(@PathVariable("id") int id) throws Exception{
     ResponseEntity responseEntity= null;
     try {
         customerService.deleteCustomer(id);

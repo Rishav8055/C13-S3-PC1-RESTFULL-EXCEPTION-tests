@@ -1,6 +1,7 @@
 package COM.NIIT.C13S3PC1RESTFULLEXCEPTION.Service;
 
 import COM.NIIT.C13S3PC1RESTFULLEXCEPTION.Domain.Customer;
+import COM.NIIT.C13S3PC1RESTFULLEXCEPTION.Exception.CustomerAlreadyExists;
 import COM.NIIT.C13S3PC1RESTFULLEXCEPTION.Exception.CustomerNotFoundException;
 import COM.NIIT.C13S3PC1RESTFULLEXCEPTION.Repository.CustomersRepo;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,10 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
     @Override
-    public Customer saveCustomer(Customer customer) {
+    public Customer saveCustomer(Customer customer) throws CustomerAlreadyExists {
+        if(customersRepo.findById(customer.getId()).isPresent()){
+            throw new CustomerAlreadyExists();
+        }
         return customersRepo.save(customer);
     }
 
